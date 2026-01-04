@@ -16,7 +16,7 @@ Card = Tuple[int, int]
 
 # Create a new standard 52-card deck.
 def new_deck() -> List[Card]:
-    deck = []
+    deck: list[Card]= []
     for suit in SUITS.keys():
         for rank in range(MIN_RANK, MAX_RANK + 1):
             deck.append((rank, suit))
