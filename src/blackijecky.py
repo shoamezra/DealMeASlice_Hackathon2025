@@ -1,6 +1,4 @@
-
-
-# Blackjack game logic.ד
+# Blackjack game logic.
 # This module contains only game-related logic.
 
 
