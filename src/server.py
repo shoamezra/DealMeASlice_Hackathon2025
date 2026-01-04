@@ -25,7 +25,7 @@ def udp_offer_broadcaster(tcp_port: int):
 
 
 # Handle a single TCP client connection.
-def handle_tcp_client(conn: socket.socket, addr):
+def handle_tcp_client(conn: socket.socket, addr: tuple[str, int]):
     try:
         conn.settimeout(5.0)    # 5 second timeout for client response  
         data = conn.recv(1024)  # Receive request from client
