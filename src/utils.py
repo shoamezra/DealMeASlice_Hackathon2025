@@ -29,7 +29,6 @@ DECISION_HIT = b"Hittt"
 DECISION_STAND = b"Stand"
 
 # ----- Card encoding -----
-# ! Rank encoded 01-13
 MIN_RANK = 1
 MAX_RANK = 13
 
