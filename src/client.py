@@ -20,6 +20,25 @@ from blackijecky import hand_total
 
 TEAM_NAME = "DealMeASliceClient"
 
+def format_card(rank, suit):
+    ranks = {
+        1: "Ace",
+        11: "Jack",
+        12: "Queen",
+        13: "King"
+    }
+    suits = {
+        0: "Hearts",
+        1: "Diamonds",
+        2: "Clubs",
+        3: "Spades"
+    }
+
+    rank_str = ranks.get(rank, str(rank))
+    suit_str = suits.get(suit, "Unknown")
+    return f"{rank_str} of {suit_str}"
+
+
 
 def choose_mode():
     while True:
@@ -62,8 +81,10 @@ def play_round(tcp_sock, decision_func):
 
         if len(player_hand) < 2:
             player_hand.append((rank, suit))
+            print(f"You received: {format_card(rank, suit)} (total: {hand_total(player_hand)})")
         else:
             dealer_hand.append((rank, suit))
+            print(f"Dealer's visible card: {format_card(rank, suit)} (total: {hand_total(dealer_hand)})")
 
     # -------- Phase 2: Player turn --------
     while True:
@@ -73,12 +94,13 @@ def play_round(tcp_sock, decision_func):
         data = tcp_sock.recv(1024)
         payload = unpack_payload_server(data)
         if payload is None:
-            raise RuntimeError("Invalid payload from server")
+            raise RuntimeError("Server sent invalid payload, disconnecting")
 
         result, rank, suit = payload
 
         if rank != 0:
             player_hand.append((rank, suit))
+            print(f"You received: {format_card(rank, suit)} (total: {hand_total(player_hand)})")
 
         if result != RESULT_NOT_OVER:
             return result
@@ -98,6 +120,7 @@ def play_round(tcp_sock, decision_func):
         raise RuntimeError("Expected dealer hidden card")
 
     dealer_hand.append((rank, suit))
+    print(f"Dealer's hidden card: {format_card(rank, suit)} (total: {hand_total(dealer_hand)})")
 
     # Dealer hit loop
     while True:
@@ -110,6 +133,7 @@ def play_round(tcp_sock, decision_func):
 
         if rank != 0:
             dealer_hand.append((rank, suit))
+            print(f"Dealer received: {format_card(rank, suit)} (total: {hand_total(dealer_hand)})")
 
         if result != RESULT_NOT_OVER:
             return result
@@ -154,20 +178,29 @@ def main():
             tcp_sock.connect((server_ip, tcp_port))
             tcp_sock.sendall(pack_request(num_rounds, TEAM_NAME))
 
-            wins = 0
+            wins, losses, ties = 0, 0, 0
 
-            for i in range(num_rounds):
+            for _ in range(num_rounds):
                 result = play_round(tcp_sock, decision_func)
                 if result == RESULT_WIN:
-                    print(f"Round {i + 1} result: WIN")
                     wins += 1
+                    print(f"Round {wins} result: WIN")
+                    
                 elif result == RESULT_LOSS:
-                    print(f"Round {i + 1} result: LOSS")
+                    losses += 1
+                    print(f"Round {losses} result: LOSS")
+                    
                 elif result == RESULT_TIE:
-                    print(f"Round {i + 1} result: TIE")
+                    ties += 1
+                    print(f"Round {ties} result: TIE")
+                    
 
-            win_rate = wins / num_rounds
-            print(f"Finished playing rounds, win rate: {win_rate:.2f}")
+            print("Game statistics:")
+            print(f"Wins: {wins}")
+            print(f"Losses: {losses}")
+            print(f"Ties: {ties}")
+            print(f"Win rate: {wins / num_rounds:.2f}")
+
 
         except Exception as e:
             print(f"Connection error: {e}")

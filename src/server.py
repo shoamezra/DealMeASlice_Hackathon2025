@@ -164,12 +164,21 @@ def main():
     udp_thread.start()
 
     # Accept incoming TCP connections
+    # Each connection is handled in a separate thread to allow multiple clients to play simultaneously
     while True:
         try:
             conn, addr = tcp_sock.accept()
-            handle_tcp_client(conn, addr)
+
+            client_thread = threading.Thread(
+                target=handle_tcp_client,
+                args=(conn, addr),
+                daemon=True
+            )
+            client_thread.start()
+
         except Exception as e:
-            print(f"Error accepting connection: {e}")
+            print(f"Accept error: {e}")
+
 
 
 if __name__ == "__main__":
