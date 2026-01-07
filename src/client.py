@@ -20,6 +20,13 @@ from blackijecky import hand_total
 
 TEAM_NAME = "DealMeASliceClient"
 
+def print_ace_of_hearts():
+    RED = "\033[31m"
+    RESET = "\033[0m"
+
+    print(f"+-+\n|{RED}A♥{RESET}|\n+-+")
+
+
 def format_card(rank, suit):
     ranks = {
         1: "Ace",
@@ -42,14 +49,20 @@ def format_card(rank, suit):
 
 def choose_mode():
     while True:
-        choice = input("Choose mode: for automatic choose 'A' for manual choose 'M': ").strip().lower()
-        if choice in ("a", "m"):
+        choice = input("Choose mode:\n1) dealer like mode \n2) manual mode\n3) careful mode\n4) risk mode\n").strip().lower()
+        if choice in ("1", "2", "3", "4"):
             return choice
-        print("Please type 'A' for automatic or 'M' for manual")
+        print("Please type '1' for dealer like mode, '2' for manual mode, '3' for careful mode, or '4' for risk mode")
 
 
-def automatic_decision(hand):
+def as_dealer_decision(hand):
     return DECISION_HIT if hand_total(hand) < 17 else DECISION_STAND
+
+def careful_decision(hand):
+    return DECISION_HIT if hand_total(hand) < 15 else DECISION_STAND
+
+def risk_decision(hand):
+    return DECISION_HIT if hand_total(hand) < 20 else DECISION_STAND
 
 
 def manual_decision(_hand):
@@ -152,7 +165,14 @@ def main():
             print("Invalid number.")
 
     mode = choose_mode()
-    decision_func = automatic_decision if mode == 'a' else manual_decision
+    if mode == "1":
+        decision_func = as_dealer_decision
+    elif mode == "2":
+        decision_func = manual_decision
+    elif mode == "3":
+        decision_func = careful_decision
+    elif mode == "4":
+        decision_func = risk_decision
 
     print("Client started, listening for offer requests...")
 
@@ -179,7 +199,9 @@ def main():
             tcp_sock.sendall(pack_request(num_rounds, TEAM_NAME))
 
             wins, losses, ties = 0, 0, 0
-
+            print("Welcome to \"Deal Me A Slice\" Casino!\n")
+            print_ace_of_hearts()
+            print("\nSit comfortably and enjoy your pizza 🍕!\n")
             for _ in range(num_rounds):
                 result = play_round(tcp_sock, decision_func)
                 if result == RESULT_WIN:
