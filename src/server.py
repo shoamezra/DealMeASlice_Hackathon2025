@@ -127,7 +127,7 @@ def play_round(conn):
 # Handle a single TCP client connection.
 def handle_tcp_client(conn, addr):
     try:
-        conn.settimeout(50.0)
+        conn.settimeout(60.0)
 
         data = recv_exact(conn, struct.calcsize(REQUEST_FORMAT))
         request = unpack_request(data)  
@@ -148,6 +148,7 @@ def handle_tcp_client(conn, addr):
         print(f"Unexpected error with {addr}: {e}")
     finally:
         conn.close()
+        print(f"TCP Connection with {addr} closed")
 
 
 def main():
@@ -182,6 +183,11 @@ def main():
 
         except Exception as e:
             print(f"Accept error: {e}")
+        except KeyboardInterrupt:
+            print("Server shutting down.")
+            break
+        except ConnectionError as e:
+            print(f"Connection error: {e}")
 
 
 

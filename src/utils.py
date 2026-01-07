@@ -41,29 +41,71 @@ SUITS = {
     3: "Spade",
 }
 
-def print_ace_of_hearts():
+
+def print_cards(cards):
     RED = "\033[31m"
     RESET = "\033[0m"
 
-    print(f"+-+\n|{RED}A♥{RESET}|\n+-+")
+    SUITS = {
+        0: "♥",  # Heart
+        1: "♦",  # Diamond
+        2: "♣",  # Club
+        3: "♠",  # Spade
+    }
+
+    RANKS = {
+        1: "A",
+        11: "J",
+        12: "Q",
+        13: "K",
+    }
+
+    card_lines = []
+
+    for card in cards:
+        rank, suit = card 
+
+        rank_str = RANKS.get(rank, str(rank))
+        suit_str = SUITS.get(suit, "?")
+
+        is_red = suit in (0, 1)  # Heart or Diamond are red
+
+        symbol = (
+            f"{RED}{rank_str}{suit_str}{RESET}"
+            if is_red
+            else f"{rank_str}{suit_str}"
+        )
+
+        lines = [
+            "+--+",
+            f"|{symbol}|",
+            "+--+"
+        ]
+
+        card_lines.append(lines)
+
+    for i in range(len(card_lines[0])):
+        print(" ".join(card[i] for card in card_lines))
+
+
 
 
 def format_card(rank, suit):
     ranks = {
-        1: "Ace",
-        11: "Jack",
+        1: "Ace Yossi",
+        11: "Jack Naveh",
         12: "Queen",
-        13: "King"
+        13: "King Nadav"
     }
     suits = {
-        0: "Hearts",
-        1: "Diamonds",
-        2: "Clubs",
-        3: "Spades"
+        0: "♥",
+        1: "♦",
+        2: "♣",
+        3: "♠"
     }
     rank_str = ranks.get(rank, str(rank))
     suit_str = suits.get(suit, "Unknown")
-    return f"{rank_str} of {suit_str}"
+    return f"{rank_str} {suit_str}"
 
 def recv_exact(sock, n: int) -> bytes:
     data = b""
