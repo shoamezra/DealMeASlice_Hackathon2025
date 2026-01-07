@@ -17,7 +17,7 @@ from utils import (
     DECISION_HIT,
     DECISION_STAND,
 )
-from blackjack import (
+from blackijecky import (
     new_deck,
     shuffle_deck,
     draw_card,
