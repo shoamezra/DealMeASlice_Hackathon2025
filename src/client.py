@@ -1,6 +1,8 @@
 import socket
+import struct
 
 from protocol import (
+    PAYLOAD_SERVER_FORMAT,
     unpack_offer,
     pack_request,
     unpack_payload_server,
@@ -14,36 +16,14 @@ from utils import (
     RESULT_TIE,
     DECISION_HIT,
     DECISION_STAND,
+    format_card,
+    recv_exact,
+    print_ace_of_hearts,
 )
 from blackijecky import hand_total
 
 
 TEAM_NAME = "DealMeASliceClient"
-
-def print_ace_of_hearts():
-    RED = "\033[31m"
-    RESET = "\033[0m"
-
-    print(f"+-+\n|{RED}A♥{RESET}|\n+-+")
-
-
-def format_card(rank, suit):
-    ranks = {
-        1: "Ace",
-        11: "Jack",
-        12: "Queen",
-        13: "King"
-    }
-    suits = {
-        0: "Hearts",
-        1: "Diamonds",
-        2: "Clubs",
-        3: "Spades"
-    }
-
-    rank_str = ranks.get(rank, str(rank))
-    suit_str = suits.get(suit, "Unknown")
-    return f"{rank_str} of {suit_str}"
 
 
 
@@ -82,7 +62,7 @@ def play_round(tcp_sock, decision_func):
     # -------- Phase 1: Initial deal --------
     # Expect: 2 player cards + 1 dealer visible card
     for _ in range(3):
-        data = tcp_sock.recv(1024)
+        data = recv_exact(tcp_sock, struct.calcsize(PAYLOAD_SERVER_FORMAT))
         payload = unpack_payload_server(data)
         if payload is None:
             raise RuntimeError("Invalid payload from server")
@@ -104,7 +84,7 @@ def play_round(tcp_sock, decision_func):
         decision = decision_func(player_hand)
         tcp_sock.sendall(pack_payload_client(decision))
 
-        data = tcp_sock.recv(1024)
+        data = recv_exact(tcp_sock, struct.calcsize(PAYLOAD_SERVER_FORMAT))
         payload = unpack_payload_server(data)
         if payload is None:
             raise RuntimeError("Server sent invalid payload, disconnecting")
@@ -123,7 +103,7 @@ def play_round(tcp_sock, decision_func):
 
     # -------- Phase 3: Dealer turn --------
     # Reveal hidden card
-    data = tcp_sock.recv(1024)
+    data = recv_exact(tcp_sock, struct.calcsize(PAYLOAD_SERVER_FORMAT))
     payload = unpack_payload_server(data)
     if payload is None:
         raise RuntimeError("Invalid payload from server")
@@ -137,7 +117,7 @@ def play_round(tcp_sock, decision_func):
 
     # Dealer hit loop
     while True:
-        data = tcp_sock.recv(1024)
+        data = recv_exact(tcp_sock, struct.calcsize(PAYLOAD_SERVER_FORMAT))
         payload = unpack_payload_server(data)
         if payload is None:
             raise RuntimeError("Invalid payload from server")

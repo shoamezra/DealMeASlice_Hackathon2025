@@ -40,3 +40,37 @@ SUITS = {
     2: "Club",
     3: "Spade",
 }
+
+def print_ace_of_hearts():
+    RED = "\033[31m"
+    RESET = "\033[0m"
+
+    print(f"+-+\n|{RED}A♥{RESET}|\n+-+")
+
+
+def format_card(rank, suit):
+    ranks = {
+        1: "Ace",
+        11: "Jack",
+        12: "Queen",
+        13: "King"
+    }
+    suits = {
+        0: "Hearts",
+        1: "Diamonds",
+        2: "Clubs",
+        3: "Spades"
+    }
+    rank_str = ranks.get(rank, str(rank))
+    suit_str = suits.get(suit, "Unknown")
+    return f"{rank_str} of {suit_str}"
+
+def recv_exact(sock, n: int) -> bytes:
+    data = b""
+    while len(data) < n:
+        chunk = sock.recv(n - len(data))
+        if not chunk:
+            raise ConnectionError("Socket closed while reading")
+        data += chunk
+    return data
+

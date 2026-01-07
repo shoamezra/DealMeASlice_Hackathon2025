@@ -1,8 +1,11 @@
 import socket
+import struct
 import threading
 import time
 
 from protocol import (
+    PAYLOAD_CLIENT_FORMAT,
+    REQUEST_FORMAT,
     pack_offer,
     unpack_request,
     unpack_payload_client,
@@ -16,6 +19,7 @@ from utils import (
     RESULT_TIE,
     DECISION_HIT,
     DECISION_STAND,
+    recv_exact,
 )
 from blackijecky import (
     new_deck,
@@ -75,7 +79,7 @@ def play_round(conn):
 
     # Player turn
     while True:
-        data = conn.recv(1024)
+        data = recv_exact(conn, struct.calcsize(PAYLOAD_CLIENT_FORMAT))
         decision = unpack_payload_client(data)
         if decision is None:
             raise RuntimeError("Invalid client payload")
@@ -123,9 +127,9 @@ def play_round(conn):
 # Handle a single TCP client connection.
 def handle_tcp_client(conn, addr):
     try:
-        conn.settimeout(10.0)
+        conn.settimeout(50.0)
 
-        data = conn.recv(1024)
+        data = recv_exact(conn, struct.calcsize(REQUEST_FORMAT))
         request = unpack_request(data)  
         if request is None:
             return
