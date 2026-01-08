@@ -216,7 +216,7 @@ def main():
                 result = play_round(tcp_sock, decision_func)
                 if result == RESULT_WIN:
                     wins += 1
-                    print(f"Round {i+1} result: WIN\n")
+                    print(f"Round {i+1} result: 🏆 WIN 🏆\n")
                     
                 elif result == RESULT_LOSS:
                     losses += 1
