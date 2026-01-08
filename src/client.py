@@ -212,28 +212,29 @@ def main():
             wins, losses, ties = 0, 0, 0
             print("\nWelcome to \"Deal Me A Slice\" Casino!")
             print("Sit comfortably and enjoy your pizza 🍕!\n")
-            for _ in range(num_rounds):
+            for i in range(num_rounds):
                 result = play_round(tcp_sock, decision_func)
                 if result == RESULT_WIN:
                     wins += 1
-                    print(f"Round {wins} result: WIN")
+                    print(f"Round {i+1} result: WIN\n")
                     
                 elif result == RESULT_LOSS:
                     losses += 1
-                    print(f"Round {losses} result: LOSS")
+                    print(f"Round {i+1} result: LOSS\n")
                     
                 elif result == RESULT_TIE:
                     ties += 1
-                    print(f"Round {ties} result: TIE")
+                    print(f"Round {i+1} result: TIE\n")
                 print("-" * 30)
                     
-
+            print(f"Finished playing {num_rounds} rounds.")
             print("Game statistics:")
             print(f"Wins: {wins}")
             print(f"Losses: {losses}")
             print(f"Ties: {ties}")
-            print(f"Win rate: {wins / num_rounds:.2f}")
+            print(f"Win rate: {wins / num_rounds:.2f}") # tie not counted as win
             print("-" * 30)
+
 
 
         except Exception as e:
